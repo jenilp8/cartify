@@ -1,18 +1,18 @@
 package com.cartify.ecommerce_api.controller;
 
+import com.cartify.ecommerce_api.dto.ForgotPasswordDTO;
 import com.cartify.ecommerce_api.dto.UserRequestDTO;
 import com.cartify.ecommerce_api.dto.UserResponseDTO;
-import com.cartify.ecommerce_api.entity.User;
 import com.cartify.ecommerce_api.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@CrossOrigin(origins = "http://127.0.0.1:5500")
 public class UserController {
 
     private final UserService userService;
@@ -21,10 +21,23 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO dto) {
         UserResponseDTO created = userService.createUser(dto);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<UserResponseDTO> login(@RequestBody UserRequestDTO dto) {
+        UserResponseDTO user = userService.login(dto.getEmail(), dto.getPassword());
+        return ResponseEntity.ok(user);
+    }
+
+    @PutMapping("/forgot-password")
+    public ResponseEntity<UserResponseDTO> forgotPassword(@RequestBody ForgotPasswordDTO dto) {
+        // fill in
+        UserResponseDTO user = userService.resetPassword(dto);
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping

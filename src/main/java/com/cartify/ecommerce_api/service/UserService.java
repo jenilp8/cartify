@@ -1,5 +1,6 @@
 package com.cartify.ecommerce_api.service;
 
+import com.cartify.ecommerce_api.dto.ForgotPasswordDTO;
 import com.cartify.ecommerce_api.dto.UserRequestDTO;
 import com.cartify.ecommerce_api.dto.UserResponseDTO;
 import com.cartify.ecommerce_api.entity.Product;
@@ -19,6 +20,30 @@ public class UserService {
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    public UserResponseDTO login(String email, String password) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Invalid email or password"));
+
+        if (!user.getPasswordHash().equals(password)) {
+            throw new UserNotFoundException("Invalid email or password");
+        }
+
+        return toResponseDTO(user);
+    }
+
+    public UserResponseDTO resetPassword(ForgotPasswordDTO dto) {
+        // 1. find user by email, throw UserNotFoundException if not found
+        User user = userRepository.findByEmail(dto.getEmail())
+                .orElseThrow(() -> new UserNotFoundException("User Not Found" + dto.getEmail()));
+        // 2. set the new password on the found user (setPasswordHash)
+        user.setPasswordHash(dto.getNewPassword());
+        // 3. save
+        User userUpdated = userRepository.save(user);
+        // 4. return toResponseDTO(...)
+        return toResponseDTO(userUpdated);
+
     }
 
     public UserResponseDTO createUser(UserRequestDTO dto) {
